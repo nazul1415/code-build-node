@@ -1,22 +1,21 @@
 {
-  "name": "nodeapp",
-  "version": "1.0.0",
-  "type": "module",
-  "description": "my node app",
-  "main": "index.js",
-  "scripts": {
-    "start": "node .",
-    "test": "mocha test --exit",
-    "build": "mocha test --exit"
+  "name": "sample_node_app",
+  "version": "0.2.0",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/robmorgan/sample-node-app.git"
   },
-  "author": "",
-  "license": "ISC",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "mocha --exit"
+  },
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.18.2"
   },
   "devDependencies": {
-    "chai": "5.0.3",
-    "mocha": "10.2.0",
-    "supertest": "6.3.4"
+    "mocha": "^10.2.0",
+    "supertest": "^6.0.1"
   }
 }

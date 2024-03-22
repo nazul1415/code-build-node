@@ -1,33 +1,19 @@
-/*
- * Copyright 2020 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+const assert = require("assert");
+const request = require("supertest");
 
-import app from "./index.js";
-import * as chai from "chai";
-import request from "supertest";
+const app = require("./server");
 
-describe("test.js", () => {
-  describe("GET /", () => {
-    it("responds with 200", (done) => {
-      request(app)
-        .get("/")
-        .expect(200)
-        .end((e, res) => {
-          chai.should().not.exist(e);
-          done();
-        });
-    });
+describe("express", function() {
+  it("responds to /", function(done) {
+    request(app)
+      .get("/")
+      .set("Accept", "text/html")
+      .expect("Content-Type", /text/)
+      .expect(200, done);
+  });
+  it("404s everything else", function(done) {
+    request(app)
+      .get("/foo/bar")
+      .expect(404, done);
   });
 });

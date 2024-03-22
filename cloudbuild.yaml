@@ -1,29 +1,43 @@
-# Copyright 2020 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# [START cloudbuild_npm_node]
 steps:
-  # Install dependencies
-  - name: node
-    entrypoint: npm
+  # install the app dependencies
+  - name: "gcr.io/cloud-builders/npm"
     args: ["install"]
-  # Run tests
-  - name: node
-    entrypoint: npm
-    args: ["test"]
-  # Run custom commands
-  - name: node
-    entrypoint: npm
-    args: ["run", "build"]
-# [END cloudbuild_npm_node]
+
+  # execute the tests
+  - name: "gcr.io/cloud-builders/npm"
+    args: ["run", "test"]
+
+  # build the container image using the docker builder
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "--build-arg",
+        "NODE_ENV=production",
+        "-t",
+        "${_GCR_REGION}.gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA",
+        ".",
+      ]
+
+  # push the container image to Container Registry (GCR)
+  # - name: "gcr.io/cloud-builders/docker"
+  #   args:
+  #     ["push", "${_GCR_REGION}.gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA"]
+
+  # Deploy the container image to Cloud Run
+  - name: "gcr.io/cloud-builders/gcloud"
+    args:
+      - run
+      - deploy
+      - ${_SERVICE_NAME}
+      - --image=${_GCR_REGION}.gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA
+      - --region=${_LOCATION}
+      - --platform=managed
+
+images:
+  - "${_GCR_REGION}.gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA"
+
+substitutions:
+  _LOCATION: us-central1 # must be substituted
+  _GCR_REGION: us # must be substituted
+  _SERVICE_NAME: service-name # must be substituted
